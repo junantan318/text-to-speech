@@ -157,3 +157,32 @@ var API_ENDPOINT = "api gateway - https://ojn7442whi.execute-api.eu-north-1.amaz
 // AFTER (correct)
 var API_ENDPOINT = "https://ojn7442whi.execute-api.eu-north-1.amazonaws.com/Dev";
 ```
+
+4) S3 upload/voice generation permissions
+
+Symptom
+Errors writing audio to S3.
+
+Fix
+- Added minimal S3 permissions to the Lambda role:
+
+```
+{
+  "Version":"2012-10-17",
+  "Statement":[
+    {
+      "Sid":"AllowReadWriteToAudioPrefix",
+      "Effect":"Allow",
+      "Action":[ "s3:PutObject","s3:GetObject" ],
+      "Resource":"arn:aws:s3:::your-audio-bucket/audio/*"
+    },
+    {
+      "Sid":"AllowListBucketForPrefix",
+      "Effect":"Allow",
+      "Action":"s3:ListBucket",
+      "Resource":"arn:aws:s3:::your-audio-bucket",
+      "Condition":{"StringLike":{"s3:prefix":["audio/*"]}}
+    }
+  ]
+}
+```
