@@ -105,9 +105,8 @@ Execution role for ConvertToAudio (Lambda)
 ```
 ## Troubleshooting Log
 
-KeyError: 'Records' in Lambda
+1) KeyError: 'Records' in Lambda
 Fix
-
 - Use an SNS-shaped test event:
 ```
 {
@@ -115,4 +114,46 @@ Fix
     { "Sns": { "Message": "12345" } }
   ]
 }
+```
+
+2) DynamoDB permissions (IAM)
+
+Symptom
+Access errors or inability to read items.
+
+Fix
+- Attached an inline policy to the Lambda execution role with the table ARN:
+```
+{
+  "Version":"2012-10-17",
+  "Statement":[
+    {
+      "Effect":"Allow",
+      "Action":[ "dynamodb:GetItem","dynamodb:Query","dynamodb:Scan" ],
+      "Resource":"arn:aws:dynamodb:eu-north-1:854681582170:table/posts"
+    }
+  ]
+}
+```
+3) 405 from S3 Website — wrong endpoint in scripts.js
+
+Error (browser console)
+
+~~~
+POST http://www-audioposts-154.s3-website.eu-north-1.amazonaws.com/...
+405 (Method Not Allowed)
+~~~
+
+Cause
+API_ENDPOINT pointed to the S3 website with the API URL mashed into the path.
+
+Fix
+- Pointed JavaScript directly at the API Gateway invoke URL:
+
+```
+// BEFORE (wrong)
+var API_ENDPOINT = "api gateway - https://ojn7442whi.execute-api.eu-north-1.amazonaws.com/Dev";
+
+// AFTER (correct)
+var API_ENDPOINT = "https://ojn7442whi.execute-api.eu-north-1.amazonaws.com/Dev";
 ```
