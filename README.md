@@ -81,6 +81,7 @@ Set these on both Lambdas (or where appropriate):
 
 **IAM: Minimal Policies (copy & adapt)**
 Execution role for NewPost (Lambda)
+```json
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -89,8 +90,9 @@ Execution role for NewPost (Lambda)
     { "Effect": "Allow", "Action": ["sns:Publish"], "Resource": "arn:aws:sns:REGION:ACCOUNT_ID:tts-new-posts" }
   ]
 }
-
+```
 Execution role for ConvertToAudio (Lambda)
+```json
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -100,3 +102,17 @@ Execution role for ConvertToAudio (Lambda)
     { "Effect": "Allow", "Action": ["dynamodb:UpdateItem","dynamodb:GetItem"], "Resource": "arn:aws:dynamodb:REGION:ACCOUNT_ID:table/Posts" }
   ]
 }
+```
+## Troubleshooting Log
+
+KeyError: 'Records' in Lambda
+Fix
+
+- Use an SNS-shaped test event:
+```
+{
+  "Records": [
+    { "Sns": { "Message": "12345" } }
+  ]
+}
+```
