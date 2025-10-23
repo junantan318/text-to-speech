@@ -46,9 +46,9 @@ When retrieved, the application provides both an MP3 audio file and a preview pl
 
 - Two Lambda functions:
 
-  -NewPost (creates a post ID and writes to DynamoDB, publishes to SNS)
+  - NewPost (creates a post ID and writes to DynamoDB, publishes to SNS)
 
-  -ConvertToAudio (reads post, calls Polly, writes MP3 to S3, updates DynamoDB)
+  - ConvertToAudio (reads post, calls Polly, writes MP3 to S3, updates DynamoDB)
 
 - A DynamoDB table: Posts (PK: postId as STRING)
 
@@ -57,3 +57,46 @@ When retrieved, the application provides both an MP3 audio file and a preview pl
 - API Gateway REST API with endpoints that invoke NewPost and a “Get Post” Lambda
 
 Tip: In your frontend app.js (or similar), set API_BASE_URL to your API Gateway invoke URL.
+
+2) **Deploy the frontend (static site)**
+- build or upload your own html/js/css file
+
+3) **Environment variables (Lambda)**
+
+Set these on both Lambdas (or where appropriate):
+
+- POSTS_TABLE=Posts
+
+- AUDIO_BUCKET=YOUR_AUDIO_BUCKET
+
+4) **Test it**
+
+1. Open your S3 website URL (or CloudFront URL).
+
+2. Enter text, choose a voice, click Say it!
+
+3. Copy the Post ID shown.
+
+4. Use the search box to retrieve it; the row should update to UPDATED with a playable MP3.
+
+**IAM: Minimal Policies (copy & adapt)**
+Execution role for NewPost (Lambda)
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    { "Effect": "Allow", "Action": ["logs:CreateLogGroup","logs:CreateLogStream","logs:PutLogEvents"], "Resource": "arn:aws:logs:*:*:*" },
+    { "Effect": "Allow", "Action": ["dynamodb:PutItem","dynamodb:UpdateItem","dynamodb:GetItem"], "Resource": "arn:aws:dynamodb:REGION:ACCOUNT_ID:table/Posts" },
+    { "Effect": "Allow", "Action": ["sns:Publish"], "Resource": "arn:aws:sns:REGION:ACCOUNT_ID:tts-new-posts" }
+  ]
+}
+
+Execution role for ConvertToAudio (Lambda)
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    { "Effect": "Allow", "Action": ["logs:CreateLogGroup","logs:CreateLogStream","logs:PutLogEvents"], "Resource": "arn:aws:logs:*:*:*" },
+    { "Effect": "Allow", "Action": ["polly:SynthesizeSpeech"], "Resource": "*" },
+    { "Effect": "Allow", "Action": ["s3:PutObject","s3:GetObject"], "Resource": "arn:aws:s3:::YOUR_AUDIO_BUCKET/*" },
+    { "Effect": "Allow", "Action": ["dynamodb:UpdateItem","dynamodb:GetItem"], "Resource": "arn:aws:dynamodb:REGION:ACCOUNT_ID:table/Posts" }
+  ]
+}
