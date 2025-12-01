@@ -1,6 +1,6 @@
 # Serverless Text-to-Speech App
 
-**Live Demo:** [View the app here]([https://your-s3-bucket-name.s3.amazonaws.com/index.html](http://www-audioposts-154.s3-website.eu-north-1.amazonaws.com))
+**Live Demo:** [View the app here (S3 website)](http://www-audioposts-154.s3-website.eu-north-1.amazonaws.com)
 
 This project demonstrates how to use Amazon Web Services (AWS) to convert text into natural-sounding speech.
 It follows the official AWS tutorial for using Amazon Polly and can synthesize speech from plain text input.
